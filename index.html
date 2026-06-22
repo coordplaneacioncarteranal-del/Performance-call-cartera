@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es" style="overflow-y: auto !important; height: auto !important;">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard de Performance · Call Center Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+  <style>
+    html, body {
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      height: auto !important;
+      min-height: 100vh !important;
+    }
+    #app {
+      display: block !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      height: auto !important;
+    }
+    #splash { display: none !important; }
+  </style>
+</head>
+<body style="overflow-y: auto !important; height: auto !important;">
+
+  <div id="app">
+    <header style="background: #1e51a4 !important; border-bottom: 3px solid #153d7c !important;">
+      <div class="header-inner">
+        <div class="header-brand">
+          <div class="brand-logo" style="background: #ffffff !important; color: #1e51a4 !important; font-weight: 900;">JR</div>
+          <div class="brand-text">
+            <h1 style="color: #ffffff !important;">Call Center Analytics</h1>
+            <p style="color: rgba(255,255,255,0.8) !important;">Dashboard de Performance · Auditoría Comisional</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <div class="last-update">
+            <div class="update-dot" style="background: #22c55e !important;"></div>
+            <span style="color: #ffffff !important;">Actualizado: <strong id="last-update-time" style="color: #ffffff !important;">—</strong></span>
+          </div>
+          <button class="btn-icon" id="theme-btn" onclick="window.DASH.toggleTheme()">
+            <span id="theme-icon">☀️</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="app-content" style="padding: 24px;">
+      <section style="margin-bottom:32px">
+        <div class="kpi-grid" id="kpi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr) !important; gap: 16px;"></div>
+      </section>
+
+      <section style="margin-bottom:32px">
+        <div class="campaign-strip" id="campaign-strip"></div>
+      </section>
+
+      <section style="margin-bottom:32px">
+        <div class="section-header">
+          <h2 class="section-title" style="color: #1e293b !important; font-weight: 800;">Distribución por Cuartiles de Cumplimiento</h2>
+        </div>
+        <div class="quartile-grid" id="quartile-grid"></div>
+      </section>
+
+      <section class="table-section">
+        <div class="section-header">
+          <h2 class="section-title" style="color: #1e293b !important; font-weight: 800;">Detalle General de Asesores</h2>
+        </div>
+
+        <div class="table-controls" style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
+          <div class="search-wrap" style="flex: 1;">
+            <input type="text" placeholder="Buscar asesor..." oninput="window.DASH.search(this.value)" id="search-input" />
+          </div>
+          <button class="filter-btn active" onclick="filterTableCampaign(this, 'ALL')">Todas</button>
+          <button class="filter-btn" onclick="filterTableCampaign(this, 'RECORDACION')">Recordación</button>
+          <button class="filter-btn" onclick="filterTableCampaign(this, 'FIDELIZACION_A')">Fidelización A</button>
+          <button class="filter-btn" onclick="filterTableCampaign(this, 'RETENCION')">Retención</button>
+          <button class="filter-btn" onclick="filterTableCampaign(this, 'RENACER_MASCOTAS')">Mascotas</button>
+        </div>
+
+        <div class="table-wrap">
+          <div class="table-scroll">
+            <table id="data-table">
+              <thead>
+                <tr>
+                  <th>Asesor</th>
+                  <th>Campaña</th>
+                  <th style="text-align:center;">Acuerdos</th>
+                  <th>Recaudo Real</th>
+                  <th>Proyección Recaudo</th>
+                  <th>Presupuesto (Meta)</th>
+                  <th>% Cumpl. Proy.</th>
+                  <th>Comisión/Acuerdo</th>
+                  <th>Variable Est.</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+          <div class="table-footer" id="table-footer" style="margin-top: 12px; padding: 16px; background: #f8fafc; border-radius: 8px;"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function filterTableCampaign(btn, key) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      window.DASH.filterCampaign(key);
+    }
+  </script>
+  <script src="app.js?v=5.2"></script>
+</body>
+</html>
