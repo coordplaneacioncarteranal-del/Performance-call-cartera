@@ -4,46 +4,56 @@
    ============================================================ */
 
 :root {
-  --bg-primary: #0a0f1e;
-  --bg-secondary: #0d1530;
-  --bg-card: #111827;
-  --bg-card-hover: #1a2438;
-  --bg-input: #1e293b;
-  --border: #1e3a5f;
-  --border-light: #2d4a6b;
+  /* --- PALETA JARDINES (Base Oscura Ejecutiva) --- */
+  --bg-primary: #0b111e;         /* Fondo azul noche muy sobrio */
+  --bg-secondary: #111a2e;       /* Contenedores y barras */
+  --bg-card: #15223b;            /* Tarjetas oscuras mate */
+  --bg-card-hover: #1c2d4e;
+  --bg-input: #1a2a47;
+  --border: #23375c;             /* Bordes delgados y discretos */
+  --border-light: #2d4675;
   --text-primary: #f1f5f9;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --accent-blue: #3b82f6;
-  --accent-indigo: #6366f1;
-  --accent-green: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-red: #ef4444;
-  --accent-pink: #ec4899;
-  --glow-blue: rgba(59, 130, 246, 0.15);
-  --glow-green: rgba(16, 185, 129, 0.15);
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --shadow-card: 0 4px 24px rgba(0,0,0,0.4), 0 1px 4px rgba(0,0,0,0.3);
-  --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.1);
-  --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* --- COLORES DE ACENTO APAGADOS / MATE --- */
+  --accent-blue: #1e40af;        /* Azul Rey Institucional Jardines */
+  --accent-indigo: #2b52ba;      /* Azul corporativo secundario */
+  --accent-green: #2e7d32;       /* Verde militar/ejecutivo apagado */
+  --accent-amber: #c57b00;       /* Ocre/Dorado sobrio (no chillón) */
+  --accent-red: #b71c1c;         /* Vino tinto / Rojo oscuro */
+  --accent-pink: #1e40af;        /* Reemplazado por azul para quitar el rosa */
+  
+  --glow-blue: rgba(30, 64, 175, 0.1);
+  --glow-green: rgba(46, 125, 50, 0.1);
+  --radius-sm: 6px;              /* Bordes ligeramente más rectos y ejecutivos */
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --shadow-card: 0 4px 20px rgba(0,0,0,0.3);
+  --shadow-glow: 0 0 30px rgba(30, 64, 175, 0.1);
+  --transition: all 0.2s ease-in-out;
 }
 
 [data-theme="light"] {
-  --bg-primary: #f0f4ff;
-  --bg-secondary: #e8edf8;
-  --bg-card: #ffffff;
-  --bg-card-hover: #f8faff;
+  /* --- PALETA JARDINES (Base Clara Ejecutiva - Tu pantalla principal) --- */
+  --bg-primary: #f4f6f9;         /* Fondo gris corporativo limpio, sin tintes raros */
+  --bg-secondary: #e2e8f0;       /* Cabecera y footer sobrios */
+  --bg-card: #ffffff;            /* Tarjetas blancas ejecutivas */
+  --bg-card-hover: #f8fafc;
   --bg-input: #f1f5f9;
-  --border: #c7d5f0;
-  --border-light: #dbe4f5;
-  --text-primary: #0f172a;
+  --border: #cbd5e1;             /* Líneas divisorias muy finas y elegantes */
+  --border-light: #94a3b8;
+  
+  --text-primary: #1e293b;       /* Azul pizarra oscuro para textos (muy elegante) */
   --text-secondary: #475569;
-  --text-muted: #94a3b8;
-  --glow-blue: rgba(59, 130, 246, 0.08);
-  --shadow-card: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.06);
+  --text-muted: #64748b;
+  
+  /* Redefinición de alertas en modo claro para que sean pasteles/mate, no brillantes */
+  --accent-blue: #1e40af;        /* Azul Rey Jardines */
+  --accent-indigo: #1e40af;      /* Unificado con la identidad de la empresa */
+  --glow-blue: rgba(30, 64, 175, 0.05);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.05), 0 10px 15px -3px rgba(0,0,0,0.02);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -61,9 +71,11 @@ body {
 }
 
 /* ── SPLASH SCREEN ─────────────────────────────────────────── */
+/* ── SPLASH SCREEN ─────────────────────────────────────────── */
 #splash {
   position: fixed; inset: 0; z-index: 9999;
-  background: linear-gradient(135deg, #050a18 0%, #0d1b3e 50%, #050a18 100%);
+  /* CAMBIADO: De morado a azul rey Jardines */
+  background: linear-gradient(135deg, #050a18 0%, #1e40af 50%, #050a18 100%);
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   gap: 32px;
   transition: opacity 0.6s ease, visibility 0.6s ease;
@@ -73,16 +85,17 @@ body {
 
 .splash-logo {
   width: 80px; height: 80px; border-radius: 20px;
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  /* CAMBIADO: Degradado a azul corporativo */
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
   display: flex; align-items: center; justify-content: center;
   font-size: 32px; font-weight: 900; color: white;
-  box-shadow: 0 0 60px rgba(99,102,241,0.5);
+  box-shadow: 0 0 60px rgba(30, 64, 175, 0.5);
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 40px rgba(99,102,241,0.4); }
-  50% { box-shadow: 0 0 80px rgba(99,102,241,0.8); }
+  0%, 100% { box-shadow: 0 0 40px rgba(30, 64, 175, 0.4); }
+  50% { box-shadow: 0 0 80px rgba(30, 64, 175, 0.8); }
 }
 
 .splash-text { text-align: center; }
@@ -99,15 +112,17 @@ body {
 
 .loader-bar {
   height: 100%; width: 0%;
-  background: linear-gradient(90deg, #6366f1, #3b82f6, #10b981);
+  /* CAMBIADO: Quitamos el morado del inicio de la barra */
+  background: linear-gradient(90deg, #1e40af, #3b82f6, #10b981);
   border-radius: 4px;
   animation: load-fill 2.5s cubic-bezier(0.4,0,0.2,1) forwards;
 }
 
 @keyframes load-fill { 0%{width:0%} 60%{width:80%} 90%{width:95%} 100%{width:100%} }
 
+/* CAMBIADO: Color del texto del loader */
 .loader-status {
-  font-size: 12px; color: #6366f1; font-weight: 500;
+  font-size: 12px; color: #1e40af; font-weight: 500;
   animation: status-blink 1.5s ease-in-out infinite;
 }
 
@@ -137,7 +152,8 @@ header {
 
 .brand-logo {
   width: 40px; height: 40px; border-radius: 10px;
-  background: linear-gradient(135deg, #6366f1, #3b82f6);
+  /* CAMBIADO: El fondo del cuadrito del logo "CP" ahora es Azul Jardines */
+  background: linear-gradient(135deg, #1e40af, #3b82f6);
   display: flex; align-items: center; justify-content: center;
   font-size: 16px; font-weight: 900; color: white;
 }
@@ -159,27 +175,19 @@ header {
   animation: dot-pulse 2s ease-in-out infinite;
 }
 
-@keyframes dot-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+/* CAMBIADO: Hover del botón de tema */
+.btn-icon:hover { background: var(--bg-card-hover); border-color: var(--accent-blue); color: var(--accent-blue); }
 
-.btn-icon {
-  width: 38px; height: 38px; border-radius: 10px;
-  border: 1px solid var(--border); background: var(--bg-card);
-  color: var(--text-secondary); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: var(--transition); font-size: 16px;
-}
-
-.btn-icon:hover { background: var(--bg-card-hover); border-color: var(--accent-indigo); color: var(--accent-indigo); }
-
+/* CAMBIADO: El botón "Actualizar" ahora usa la variable azul de Jardines */
 .btn-refresh {
   display: flex; align-items: center; gap: 8px;
   padding: 8px 16px; border-radius: 10px;
-  border: 1px solid var(--accent-indigo); background: var(--glow-blue);
-  color: var(--accent-indigo); cursor: pointer; font-size: 13px; font-weight: 600;
+  border: 1px solid var(--accent-blue); background: rgba(30, 64, 175, 0.1);
+  color: var(--accent-blue); cursor: pointer; font-size: 13px; font-weight: 600;
   transition: var(--transition);
 }
 
-.btn-refresh:hover { background: var(--accent-indigo); color: white; }
+.btn-refresh:hover { background: var(--accent-blue); color: white; }
 .btn-refresh.loading svg { animation: spin 1s linear infinite; }
 @keyframes spin { from{transform:rotate(0)} to{transform:rotate(360deg)} }
 
@@ -192,8 +200,8 @@ main { padding: 28px 24px; max-width: 1440px; margin: 0 auto; }
 }
 
 .section-badge {
-  font-size: 10px; font-weight: 700; color: var(--accent-indigo);
-  background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25);
+  font-size: 10px; font-weight: 700; color: var(--accent-blue);
+  background: rgba(30, 64, 175, 0.12); border: 1px solid rgba(30, 64, 175, 0.25);
   padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; text-transform: uppercase;
 }
 
@@ -220,7 +228,7 @@ main { padding: 28px 24px; max-width: 1440px; margin: 0 auto; }
 .kpi-card::before {
   content: '';
   position: absolute; top: 0; left: 0; right: 0; height: 3px;
-  background: var(--kpi-color, linear-gradient(90deg, #6366f1, #3b82f6));
+  background: var(--accent-blue); /* Todo unificado bajo el azul de Jardines */
   border-radius: 3px 3px 0 0;
 }
 
@@ -238,8 +246,8 @@ main { padding: 28px 24px; max-width: 1440px; margin: 0 auto; }
   display: flex; align-items: center; gap: 4px;
 }
 
-.kpi-trend.up { color: #10b981; background: rgba(16,185,129,0.1); }
-.kpi-trend.down { color: #ef4444; background: rgba(239,68,68,0.1); }
+.kpi-trend.up { color: #2e7d32; background: #e8f5e9; }
+.kpi-trend.down { color: #c62828; background: #ffebee; }
 .kpi-trend.neutral { color: #94a3b8; background: rgba(148,163,184,0.1); }
 
 .kpi-label { font-size: 11px; color: var(--text-muted); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
@@ -308,11 +316,10 @@ main { padding: 28px 24px; max-width: 1440px; margin: 0 auto; }
   text-transform: uppercase; letter-spacing: 0.5px;
 }
 
-.q1 { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
-.q2 { background: rgba(59,130,246,0.15); color: #3b82f6; border: 1px solid rgba(59,130,246,0.3); }
-.q3 { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-.q4 { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
-
+.q1 { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; } /* Verde elegante */
+.q2 { background: #e3f2fd; color: #1e40af; border: 1px solid #bbdefb; } /* Azul Jardines */
+.q3 { background: #fff3e0; color: #b66d00; border: 1px solid #ffe0b2; } /* Ocre/Bronce */
+.q4 { background: #ffebee; color: #c62828; border: 1px solid #ffcdd2; } /* Rojo sutil */
 .quartile-agents { display: flex; flex-direction: column; gap: 8px; }
 
 .agent-row {
@@ -556,4 +563,95 @@ tbody tr:hover td { background: var(--bg-card-hover); }
 @media (max-width: 480px) {
   .kpi-grid { grid-template-columns: 1fr; }
   .campaign-strip { grid-template-columns: 1fr 1fr; }
+}
+/* ============================================================
+   FORZADO DE IDENTIDAD CORPORATIVA JARDINES (ANULACIÓN DE VIVOS)
+   ============================================================ */
+
+/* 1. Forzar el azul institucional de Jardines en los textos principales y montos destacados */
+.kpi-value, 
+.camp-recaudo,
+th.sorted,
+.loader-status {
+  color: #1e40af !important; /* Azul Rey Jardines */
+}
+
+/* 2. Suavizar los textos secundarios y etiquetas de segmentación */
+.section-badge,
+.q-badge,
+.agent-q-badge {
+  background-color: #e6eef9 !important;
+  color: #1e40af !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* 3. Reemplazar los bordes morados y rosados de las tarjetas activas por el azul de la empresa */
+.camp-chip.active, 
+.camp-chip:hover {
+  border-color: #1e40af !important;
+}
+.camp-chip::after {
+  background: #1e40af !important;
+}
+
+/* 4. Cambiar el "arcoíris" de las barras de los asesores por una escala ejecutiva y limpia */
+/* Q1 - Excelente (Verde Ejecutivo Mate) */
+.q1, .agent-q-badge.q1 { background: #e8f5e9 !important; color: #2e7d32 !important; }
+.agent-row .q1-bar, [style*="--chip-color"] { --chip-color: #1e40af !important; }
+
+/* Forzar que las barras de progreso sigan la paleta corporativa en lugar de colores chillones */
+.agent-bar {
+  background-color: #1e40af !important; /* Por defecto todas las barras principales pasan a ser azul rey */
+}
+
+/* 5. Eliminar el rosa chillón de la tarjeta de Nómina Variable Estimada */
+[style*="#ec4899"], 
+[style*="#ef4444"],
+.kpi-card[style*="--kpi-color"] {
+  --kpi-color: linear-gradient(90deg, #1e40af, #3b82f6) !important;
+}
+
+/* Modificar específicamente el texto rosa de la última tarjeta que se ve en la captura */
+.kpi-card:last-child .kpi-value {
+  color: #1e40af !important;
+}
+
+/* 6. Ajustar los círculos de campaña para que sean sobrios */
+.camp-dot {
+  background-color: #1e40af !important;
+}
+/* Ocultar por completo la sección de gráficos de dispersión */
+.charts-row, 
+header + main > .section-header:nth-of-type(3), /* Oculta el título 03 */
+main > .section-header:has(.section-badge:contains("03")) { 
+  display: none !important; 
+}
+/* ============================================================
+   ELIMINACIÓN DE LA SECCIÓN DE GRÁFICOS (03 - ANÁLISIS)
+   ============================================================ */
+
+/* 1. Oculta las tarjetas de los gráficos buscando sus elementos internos */
+.chart-card,
+#scatter-chart,
+#bar-chart,
+.chart-header,
+.chart-wrap {
+  display: none !important;
+  height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* 2. Oculta la fila contenedora que se ve en la captura */
+.charts-row {
+  display: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 3. Busca el título "03 - ANÁLISIS" en el HTML y lo remueve visualmente */
+main > div:nth-of-type(3),
+main > section:nth-of-type(3) {
+  display: none !important;
 }

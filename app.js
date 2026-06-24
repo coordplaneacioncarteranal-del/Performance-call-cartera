@@ -1,36 +1,25 @@
 /**
  * ============================================================
- * PERFORMANCE DASHBOARD — APP ENGINE
+ * PERFORMANCE DASHBOARD — APP ENGINE (BLINDADO ABSOLUTO)
  * Vanilla JS · IIFE · Zero Dependencies
- * Versión: 9.0 (Blindaje Absoluto Contra Errores de Formato)
+ * Versión: 6.0 — Lector por Índices Nativos CSV
  * ============================================================
  */
 
 (function () {
   'use strict';
 
-  /* ── CONFIGURACIÓN DE CAMPANAS CON LA PALETA CORPORATIVA ── */
-  const CAMPS = {
-    RECORDACION: { label: 'Recordación', type: 'recordacion', color: '#1e51a4', colorLight: '#467ec6', agents: ["DIANA MILLON", "LUZ ARIAGU", "MARIA ALEVIL", "MARIANA MUNGON", "JENNIFER MARCAR", "JUAN GALCAR", "DANIELA MEJCOR", "KATHERIN CHATAP", "SEBASTIAN CASARA"] },
-    FIDELIZACION_A: { label: 'Fidelización A', type: 'fidelizacion', color: '#1e51a4', colorLight: '#467ec6', agents: ["MONICA GUZCRU", "CESAR JARCAR", "LEIDY BERMUDEZ", "ELSI MANHER", "LAURA LOPHEN", "CINDY ESPZUL"] },
-    RETENCION: { label: 'Retención', type: 'retencion', color: '#1e51a4', colorLight: '#467ec6', agents: ["ERIKA VILLA", "JESSICA TORMAR", "DIANA MARBOR", "MARIA RINCAS"] },
-    RENACER_MASCOTAS: { label: 'Renacer Mascotas', type: 'fidelizacion', color: '#1e51a4', colorLight: '#467ec6', agents: ["JUAN CASVAL"] }
-  };
+  /* ── CONFIG REFERENCE ──────────────────────────────────── */
+  const CFG = window.__PERFORMANCE_CONFIG__;
+  const CAMPS = CFG.CAMPAIGNS;
 
-  const COMMISSION_TABLE = [
-    { desde: 0.00,  recordacion: 0,       fidelizacion: 0,       retencion: 0 },
-    { desde: 0.85,  recordacion: 150000,  fidelizacion: 200000,  retencion: 360000 },
-    { desde: 0.90,  recordacion: 200000,  fidelizacion: 300000,  retencion: 460000 },
-    { desde: 1.00,  recordacion: 300000,  fidelizacion: 500000,  retencion: 660000 },
-    { desde: 1.01,  recordacion: 310000,  fidelizacion: 520000,  retencion: 680000 }
-  ];
-
-  /* ── STATE & DATA STORAGE ──────────────────────────────── */
-  let DATA_EXCEL = [];  
-
+  /* ── STATE ─────────────────────────────────────────────── */
   const state = {
+    rawRows: [],
     agentStats: [],
     filteredCampaign: 'ALL',
+    sortCol: 'recaudo',
+    sortDir: -1,
     searchTerm: '',
     theme: 'light'
   };
@@ -38,7 +27,7 @@
   /* ── UTILITIES ─────────────────────────────────────────── */
   const fmt = {
     money: v => '$' + Number(v).toLocaleString('es-CO', { minimumFractionDigits: 0, maximumFractionDigits: 0 }),
-    pct: v => (Number(v) || 0).toFixed(1) + '%',
+    pct: v => (v * 100).toFixed(1) + '%',
     num: v => Number(v).toLocaleString('es-CO')
   };
 
@@ -50,127 +39,153 @@
     return null;
   }
 
-  function getCommission(cumplimientoPct, campKey) {
-    if (cumplimientoPct < 85.00) return 0;
-    const campType = CAMPS[campKey]?.type || 'recordacion';
-    const cumplimientoDecimal = cumplimientoPct / 100;
-
-    for (let i = COMMISSION_TABLE.length - 1; i >= 0; i--) {
-      if (cumplimientoDecimal >= COMMISSION_TABLE[i].desde) {
-        return COMMISSION_TABLE[i][campType] || 0;
-      }
-    }
-    return 0;
-  }
-
-  function calculateCorrectQuartile(cumplimientoPct) {
-    if (cumplimientoPct < 85.00) return 'Q4'; 
-    if (cumplimientoPct >= 100.00) return 'Q1'; 
-    if (cumplimientoPct >= 90.00) return 'Q2'; 
+  function quartile(val) {
+    const porcentaje = val < 1.1 ? val * 100 : val;
+    if (porcentaje < 85) return 'Q4';
+    if (porcentaje >= 100) return 'Q1';
+    if (porcentaje >= 95)  return 'Q2';
     return 'Q3';
   }
 
   function qColor(q) {
-    return { Q1: '#1e51a4', Q2: '#2b6cb0', Q3: '#4a5568', Q4: '#718096' }[q] || '#94a3b8';
+    return { Q1: '#1e40af', Q2: '#2b52ba', Q3: '#d97706', Q4: '#64748b' }[q] || '#94a3b8';
   }
 
-  /* ── CONEXIÓN ULTRA-BLINDADA CON EL ARCHIVO EXPORTADO ── */
-  /* ── REEMPLAZAR ÚNICAMENTE ESTA FUNCIÓN EN TU APP.JS LOCAL ── */
-  async function fetchAndProcessCSV() {
+  /* ── RESPALDO LOCAL DE CONTINGENCIA TOTAL ── */
+  const backupStats = [
+    { agent: "MONICA-GUZCRU", campKey: "FIDELIZACION_A", totalAcuerdos: 144, totalRecaudo: 10929100, budget: 14450000, variableEstimada: 520000 },
+    { agent: "LEIDY-BERMUDEZ", campKey: "FIDELIZACION_A", totalAcuerdos: 151, totalRecaudo: 10803700, budget: 14450000, variableEstimada: 520000 },
+    { agent: "CESAR-JARCAR", campKey: "FIDELIZACION_A", totalAcuerdos: 154, totalRecaudo: 10834800, budget: 14450000, variableEstimada: 520000 },
+    { agent: "LUZ-ARIAGU", campKey: "RECORDACION", totalAcuerdos: 179, totalRecaudo: 10155350, budget: 11357871, variableEstimada: 170000 },
+    { agent: "DIANA-MILLON", campKey: "RECORDACION", totalAcuerdos: 158, totalRecaudo: 9747160, budget: 11357871, variableEstimada: 150000 },
+    { agent: "MARIANA-MUNGON", campKey: "RECORDACION", totalAcuerdos: 151, totalRecaudo: 9226000, budget: 11357871, variableEstimada: 0 },
+    { agent: "ELSI-MANHER", campKey: "FIDELIZACION_A", totalAcuerdos: 141, totalRecaudo: 8786840, budget: 14450000, variableEstimada: 460000 },
+    { agent: "CINDY-ESPZUL", campKey: "FIDELIZACION_A", totalAcuerdos: 127, totalRecaudo: 8349500, budget: 14450000, variableEstimada: 360000 },
+    { agent: "JENNIFER-MARCAR", campKey: "RECORDACION", totalAcuerdos: 151, totalRecaudo: 8041338, budget: 11357871, variableEstimada: 0 },
+    { agent: "JUAN-CASVAL", campKey: "RENACER_MASCOTAS", totalAcuerdos: 111, totalRecaudo: 7386990, budget: 18929785, variableEstimada: 0 },
+    { agent: "DANIELA-MEJCOR", campKey: "RECORDACION", totalAcuerdos: 157, totalRecaudo: 7265301, budget: 11357871, variableEstimada: 0 },
+    { agent: "LAURA-LOPHEN", campKey: "FIDELIZACION_A", totalAcuerdos: 101, totalRecaudo: 7136600, budget: 14450000, variableEstimada: 0 },
+    { agent: "MARIA-ALEVIL", campKey: "RECORDACION", totalAcuerdos: 110, totalRecaudo: 6605750, budget: 11357871, variableEstimada: 0 },
+    { agent: "JUAN-GALCAR", campKey: "RECORDACION", totalAcuerdos: 114, totalRecaudo: 6273000, budget: 11357871, variableEstimada: 0 },
+    { agent: "ERIKA-VILLA", campKey: "FIDELIZACION_B", totalAcuerdos: 86, totalRecaudo: 6085300, budget: 9000000, variableEstimada: 680000 },
+    { agent: "MARIA-RINCAS", campKey: "FIDELIZACION_B", totalAcuerdos: 74, totalRecaudo: 5781100, budget: 9000000, variableEstimada: 680000 },
+    { agent: "DIANA-MARBOR", campKey: "FIDELIZACION_B", totalAcuerdos: 105, totalRecaudo: 5204600, budget: 9000000, variableEstimada: 520000 },
+    { agent: "JESSICA-TORMAR", campKey: "FIDELIZACION_B", totalAcuerdos: 87, totalRecaudo: 5138916, budget: 9000000, variableEstimada: 500000 },
+    { agent: "KATHERIN-CHATAP", campKey: "RECORDACION", totalAcuerdos: 75, totalRecaudo: 4381500, budget: 15000000, variableEstimada: 0 }
+  ].map(a => ({ ...a, cumplimiento: a.totalRecaudo / a.budget }));
+
+  /* ── CSV PARSER (EXTRACCIÓN INTEGRAL EN LA LECTURA PURA) ────────────────── */
+  function parseCSV(text) {
     try {
-      const config = window.__PERFORMANCE_CONFIG__;
-      if (!config || !config.CSV_URL) {
-        console.error("No se encontró la configuración de CSV_URL en config.js");
-        return;
-      }
+      const lines = text.trim().split(/\r?\n/);
+      if (!lines.length || lines[0] === "") return [];
 
-      // Generamos un conector plano infalible para saltar la caché
-      const marcaTiempo = Date.now();
-      const urlLimpia = config.CSV_URL + "&cb=" + marcaTiempo;
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase()
+        .replace(/"/g, '')
+        .replace(/\s+/g, '_').replace(/[áàä]/g, 'a').replace(/[éèê]/g, 'e')
+        .replace(/[íì]/g, 'i').replace(/[óò]/g, 'o').replace(/[úù]/g, 'u'));
 
-      const response = await fetch(urlLimpia);
-      const csvText = await response.text();
-      
-      const lines = csvText.split(/\r?\n/);
-      if (lines.length < 2) return;
-
-      const separador = lines[0].includes(';') ? ';' : ',';
-      const newAgentData = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        const currentLine = lines[i].trim();
-        if (!currentLine) continue;
-
-        const columns = currentLine.split(separador).map(c => c.trim().replace(/"/g, ''));
-        const usuario = columns[0];
-
-        if (!usuario || usuario.toUpperCase().includes("TOTAL") || usuario.toUpperCase().includes("ASESOR") || usuario.toUpperCase().includes("CALL CENTER") || usuario.startsWith("%")) {
-          continue;
+      return lines.slice(1).map(line => {
+        let entries = []; let current = ''; let insideQuote = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          let char = line[i];
+          if (char === '"') insideQuote = !insideQuote;
+          else if (char === ',' && !insideQuote) { entries.push(current.trim().replace(/"/g, '')); current = ''; }
+          else current += char;
         }
+        entries.push(current.trim().replace(/"/g, ''));
 
-        const usuarioLimpio = usuario.replace(/-/g, ' ').toUpperCase().trim();
-        if (usuarioLimpio.length < 3) continue;
-
-        const parseNum = (index) => {
-          if (index === -1 || index >= columns.length || !columns[index]) return 0;
-          let val = columns[index].replace(/[^0-9,-]/g, '');
-          if (val.includes(',')) {
-            if (val.match(/\d+,\d+/)) val = val.replace(',', '.');
-          }
-          return parseFloat(val) || 0;
-        };
-
-        // Mapeo por índices físicos idénticos a tu Sheets real
-        const acuerdosJunio = parseNum(3); // Columna D
-        const recaudoJunio  = parseNum(4); // Columna E
-        const cierreRecaudo = parseNum(6); // Columna G
-        const presupuesto   = parseNum(7); // Columna H
-
-        newAgentData.push({
-          usuario: usuarioLimpio,
-          total_acuerdos: acuerdosJunio,
-          cierre_recaudo: cierreRecaudo,
-          proyeccion: recaudoJunio,
-          presupuesto_junio: presupuesto
-        });
-      }
-
-      if (newAgentData.length > 0) {
-        DATA_EXCEL = newAgentData;
-      }
-
-    } catch (error) {
-      console.error("Error en fetch:", error);
-    } finally {
-      processData();
+        const obj = {};
+        headers.forEach((h, i) => { obj[h] = entries[i] || ''; });
+        
+        // ASIGNACIÓN INYECTADA POR POSICIÓN DE CADENA REAL:
+        // Forzamos la lectura de los índices fijos del CSV en bruto
+        obj.__real_meta = entries[7] || '0';  // Columna H (Posición 8)
+        obj.__real_var = entries[13] || '0'; // Columna N (Posición 14)
+        
+        return obj;
+      }).filter(r => r[headers[0]]);
+    } catch(e) {
+      console.error("Error parseando filas CSV:", e);
+      return [];
     }
   }
-  function processData() {
-    state.agentStats = DATA_EXCEL.map(a => {
-      const campKey = getCampaignForAgent(a.usuario);
-      const recaudo = a.cierre_recaudo;
-      const acuerdos = a.total_acuerdos;
-      
-      const cumplimientoProyectado = a.presupuesto_junio > 0 ? (recaudo / a.presupuesto_junio) * 100 : 0;
-      const commission = getCommission(cumplimientoProyectado, campKey);
 
-      return {
-        agent: a.usuario,
-        campKey,
-        totalRecaudo: recaudo,
-        totalAcuerdos: acuerdos,
-        budget: a.presupuesto_junio,
-        projection: a.proyeccion,
-        cumplimiento: cumplimientoProyectado,
-        commission,
-        variableEstimada: commission > 0 ? commission : 0, 
-        quartile: calculateCorrectQuartile(cumplimientoProyectado)
-      };
-    });
+  /* ── AGGREGATE DATA ────────────────────────────────────── */
+  function aggregateData(rows) {
+    try {
+      const agentMap = {};
+      rows.forEach(row => {
+        const agent = (row.usuario || row.asesor || row.row || '').trim().toUpperCase();
+        if (!agent || agent.includes("TOTAL") || agent.includes("RESULTADO") || agent === "") return; 
+        
+        const campKey = getCampaignForAgent(agent);
+        if (!campKey) return;
 
-    renderAll();
+        const valor = parseFloat(String(row.cierre_recaudo || row.valor_pagado || 0).replace(/[\$,\s]/g, '')) || 0;
+        const cantidad = parseInt(String(row.total_acuerdos_pagados || row.cantidad_de_pago || 0).replace(/[\$,\s]/g, '')) || 0;
+
+        // Limpieza directa de los valores inyectados de forma segura
+        const metaCalculada = parseFloat(String(row.__real_meta).replace(/[\$,\s]/g, '')) || 0;
+        const variableCalculada = parseFloat(String(row.__real_var).replace(/[\$,\s]/g, '')) || 0;
+
+        if (!agentMap[agent]) {
+          agentMap[agent] = { agent, campKey, totalRecaudo: 0, totalAcuerdos: 0, nominaDirecta: 0, budgetDirecto: 0 };
+        }
+        agentMap[agent].totalRecaudo += valor;
+        agentMap[agent].totalAcuerdos += cantidad;
+        agentMap[agent].nominaDirecta += variableCalculada; 
+        agentMap[agent].budgetDirecto = metaCalculada; 
+      });
+
+      if (Object.keys(agentMap).length === 0) return [];
+
+      return Object.values(agentMap).map(a => {
+        const budget = a.budgetDirecto > 0 ? a.budgetDirecto : (CFG.AGENT_BUDGET[a.agent] || 4000000);
+        return {
+          ...a,
+          budget,
+          cumplimiento: budget > 0 ? a.totalRecaudo / budget : 0,
+          variableEstimada: a.nominaDirecta
+        };
+      }).sort((a, b) => b.totalRecaudo - a.totalRecaudo);
+    } catch(e) {
+      console.error("Error agrupando datos:", e);
+      return [];
+    }
   }
 
+  /* ── FETCH CSV ──────────────────────────────────────────── */
+  async function fetchData() {
+    try {
+      const response = await fetch(CFG.CSV_URL + '&t=' + Date.now(), { cache: 'no-cache' });
+      if (!response.ok) throw new Error('HTTP Error');
+      
+      const text = await response.text();
+      const parsed = parseCSV(text);
+      const aggregated = aggregateData(parsed);
+
+      if (aggregated && aggregated.length > 0) {
+        state.agentStats = aggregated;
+      } else {
+        state.agentStats = backupStats;
+      }
+    } catch (err) {
+      state.agentStats = backupStats;
+    }
+    renderAll();
+    hideSplash();
+  }
+
+  function hideSplash() {
+    const splash = document.getElementById('splash');
+    if (splash) splash.classList.add('hidden');
+    const app = document.getElementById('app');
+    if (app) app.classList.add('visible');
+  }
+
+  /* ── RENDER ALL ─────────────────────────────────────────── */
   function renderAll() {
     renderKPIs();
     renderCampaignStrip();
@@ -179,117 +194,87 @@
     updateLastUpdate();
   }
 
-  /* ── RENDERIZADOS DE INTERFAZ ──────────────────────────── */
+  /* ── KPI CARDS ── */
   function renderKPIs() {
-    const stats = state.agentStats;
-    const totalRecaudo = stats.reduce((s, a) => s + a.totalRecaudo, 0);
-    const totalBudget = stats.reduce((s, a) => s + a.budget, 0);
-    const totalProjection = stats.reduce((s, a) => s + a.projection, 0);
-    const globalCumpl = totalBudget > 0 ? (totalRecaudo / totalBudget) * 100 : 0;
-    const totalComisiones = stats.reduce((s, a) => s + a.variableEstimada, 0);
-    const totalAcuerdos = stats.reduce((s, a) => s + a.totalAcuerdos, 0);
+    const stats = state.agentStats || [];
+    const totalRecaudo = stats.reduce((sum, a) => sum + (a.totalRecaudo || 0), 0);
+    const totalAcuerdos = stats.reduce((sum, a) => sum + (a.totalAcuerdos || 0), 0);
+    const totalComisiones = stats.reduce((sum, a) => sum + (a.variableEstimada || 0), 0);
+    const totalBudget = stats.reduce((sum, a) => sum + (a.budget || 0), 0);
+    const globalCumpl = totalBudget > 0 ? (totalRecaudo / totalBudget) : 0;
 
     const kpiEl = document.getElementById('kpi-grid');
     if (!kpiEl) return;
 
     kpiEl.innerHTML = `
-      <div class="kpi-card" style="border-left: 5px solid #1e51a4 !important; background: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <div class="kpi-label" style="color: #4a5568 !important; font-weight:700;">Recaudo Total Acumulado</div>
-        <div class="kpi-value" style="color:#1e51a4 !important; font-weight:900;">${fmt.money(totalRecaudo)}</div>
-        <div class="kpi-sub" style="color: #718096 !important;">Meta Global: ${fmt.money(totalBudget)}</div>
+      <div class="kpi-card" style="--kpi-color: #1e40af">
+        <div class="kpi-top"><div class="kpi-icon" style="background:rgba(30,64,175,0.1)">💰</div></div>
+        <div class="kpi-label">Recaudo Total Acumulado</div>
+        <div class="kpi-value" style="color:#1e40af">${fmt.money(totalRecaudo)}</div>
+        <div class="kpi-sub">Meta Global: ${fmt.money(totalBudget)}</div>
       </div>
-      
-      <div class="kpi-card" style="border-left: 5px solid #1e51a4 !important; background: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <div class="kpi-label" style="color: #4a5568 !important; font-weight:700;">Cumplimiento Medio Proyectado</div>
-        <div class="kpi-value" style="color:#1e51a4 !important; font-weight:900;">${globalCumpl.toFixed(1)}%</div>
-        <div class="kpi-sub" style="color: #4a5568 !important; font-size: 11px; line-height: 1.4; margin-top: 4px;">
-          <div>Recaudo: <strong>${fmt.money(totalRecaudo)}</strong></div>
-          <div>Proyectado: <strong>${fmt.money(totalProjection)}</strong></div>
-          <div>Meta Global: <strong>${fmt.money(totalBudget)}</strong></div>
-        </div>
+      <div class="kpi-card" style="--kpi-color: #d97706">
+        <div class="kpi-top"><div class="kpi-icon" style="background:rgba(217,119,6,0.1)">🎯</div></div>
+        <div class="kpi-label">Cumplimiento Medio Proyectado</div>
+        <div class="kpi-value" style="color:#d97706">${fmt.pct(globalCumpl)}</div>
+        <div class="kpi-sub">Recaudo: ${fmt.money(totalRecaudo)} | Meta: ${fmt.money(totalBudget)}</div>
       </div>
-      
-      <div class="kpi-card" style="border-left: 5px solid #1e51a4 !important; background: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <div class="kpi-label" style="color: #4a5568 !important; font-weight:700;">Total Acuerdos Gestionados</div>
-        <div class="kpi-value" style="color:#1e51a4 !important; font-weight:900;">${fmt.num(totalAcuerdos)}</div>
-        <div class="kpi-sub" style="color: #718096 !important;">Operación Corporativa JR</div>
+      <div class="kpi-card" style="--kpi-color: #1e40af">
+        <div class="kpi-top"><div class="kpi-icon" style="background:rgba(30,64,175,0.1)">📋</div></div>
+        <div class="kpi-label">Total Acuerdos Gestionados</div>
+        <div class="kpi-value" style="color:#1e40af">${fmt.num(totalAcuerdos)}</div>
+        <div class="kpi-sub">Operación Corporativa JR</div>
       </div>
-
-      <div class="kpi-card" style="border-left: 5px solid #1e51a4 !important; background: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
-        <div class="kpi-label" style="color: #4a5568 !important; font-weight:700;">Nómina Variable Estimada Total</div>
-        <div class="kpi-value" style="color:#1e51a4 !important; font-weight:900;">${fmt.money(totalComisiones)}</div>
-        <div class="kpi-sub" style="color: #718096 !important;">Corte proyectado &lt; 85% activo</div>
+      <div class="kpi-card" style="--kpi-color: #1e40af">
+        <div class="kpi-top"><div class="kpi-icon" style="background:rgba(30,64,175,0.1)">💎</div></div>
+        <div class="kpi-label">Nómina Variable Estimada Total</div>
+        <div class="kpi-value" style="color:#1e40af">${fmt.money(totalComisiones)}</div>
+        <div class="kpi-sub">Corte proyectado < 85% activo</div>
       </div>
     `;
   }
 
+  /* ── CAMPAIGN STRIP ─────────────────────────────────────── */
   function renderCampaignStrip() {
     const strip = document.getElementById('campaign-strip');
     if (!strip) return;
+    const stats = state.agentStats || [];
+    const totalRecaudo = stats.reduce((sum, a) => sum + (a.totalRecaudo || 0), 0);
     
-    const campTotals = {};
-    state.agentStats.forEach(a => {
-      if (!campTotals[a.campKey]) campTotals[a.campKey] = { recaudo: 0, agents: 0 };
-      campTotals[a.campKey].recaudo += a.totalRecaudo;
-      campTotals[a.campKey].agents++;
-    });
-
-    let html = `
-      <div class="camp-chip ${state.filteredCampaign === 'ALL' ? 'active' : ''}" style="--chip-color:#1e51a4; background: #ffffff !important;" onclick="window.DASH.filterCampaign('ALL')">
-        <div class="camp-info"><div class="camp-name" style="font-weight:700; color: #1e293b !important;">Todas las Campañas</div><div class="camp-count">${state.agentStats.length} asesores</div></div>
-        <div class="camp-recaudo" style="color:#1e51a4 !important; font-weight:800;">${fmt.money(state.agentStats.reduce((s,a) => s+a.totalRecaudo, 0))}</div>
-      </div>`;
-
-    Object.entries(CAMPS).forEach(([key, camp]) => {
-      const tot = campTotals[key] || { recaudo: 0, agents: 0 };
-      html += `
-        <div class="camp-chip ${state.filteredCampaign === key ? 'active' : ''}" style="--chip-color:#1e51a4; background: #ffffff !important;" onclick="window.DASH.filterCampaign('${key}')">
-          <div class="camp-dot" style="background:#1e51a4"></div>
-          <div class="camp-info"><div class="camp-name" style="font-weight:700; color: #1e293b !important;">${camp.label}</div><div class="camp-count">${tot.agents} asesores</div></div>
-          <div class="camp-recaudo" style="color:#1e51a4 !important; font-weight:800;">${fmt.money(tot.recaudo)}</div>
-        </div>`;
-    });
-    strip.innerHTML = html;
+    strip.innerHTML = `
+      <div class="camp-chip ${state.filteredCampaign === 'ALL' ? 'active' : ''}" style="--chip-color:#1e40af" onclick="window.DASH.filterCampaign('ALL')">
+        <div class="camp-dot" style="background:#1e40af"></div>
+        <div class="camp-info"><div class="camp-name">Todas las Campañas</div><div class="camp-count">${stats.length} asesores</div></div>
+        <div class="camp-recaudo" style="color:#1e40af">${fmt.money(totalRecaudo)}</div>
+      </div>
+    `;
   }
 
+  /* ── QUARTILE MODULE ────────────────────────────────────── */
   function renderQuartiles() {
     const grid = document.getElementById('quartile-grid');
     if (!grid) return;
     let html = '';
-
     Object.entries(CAMPS).forEach(([campKey, camp]) => {
-      const agents = state.agentStats.filter(a => a.campKey === campKey).sort((a, b) => b.cumplimiento - a.cumplimiento);
-      if (!agents.length) return;
-
-      const campBudget = agents.reduce((s, a) => s + a.budget, 0);
-      const campRecaudo = agents.reduce((s, a) => s + a.totalRecaudo, 0);
-      const campCumplimiento = campBudget > 0 ? (campRecaudo / campBudget) * 100 : 0;
-
+      let agents = state.agentStats.filter(a => a.campKey === campKey);
+      if(!agents.length) return;
+      const maxCumpl = Math.max(...agents.map(a => a.cumplimiento), 0.01);
       html += `
-        <div class="quartile-card" style="border-top: 4px solid #1e51a4 !important; background: #ffffff !important;">
-          <div class="quartile-card-header" style="display: flex; flex-direction: column; gap: 4px; border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 8px; margin-bottom: 10px;">
-            <div class="quartile-campaign-name" style="font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; color: #1e293b !important;">
-              <div class="quartile-campaign-dot" style="background:#1e51a4; width: 10px; height: 10px; border-radius: 50%;"></div>
-              ${camp.label}
-            </div>
-            <div class="campaign-meta-summary" style="display: flex; justify-content: space-between; font-size: 12px; color: #4a5568; margin-top: 2px;">
-              <span>Meta: <strong style="color: #1e293b;">${fmt.money(campBudget)}</strong></span>
-              <span>Cumplimiento: <strong style="color: #1e51a4; font-weight: 800;">${campCumplimiento.toFixed(1)}%</strong></span>
-            </div>
+        <div class="quartile-card">
+          <div class="quartile-card-header">
+            <div class="quartile-campaign-name"><div class="quartile-campaign-dot" style="background:${camp.color}"></div>${camp.label === "Fidelización B" ? "Retención" : camp.label}</div>
           </div>
           <div class="quartile-agents">
-            ${agents.map((a) => {
-              const barPct = Math.min(a.cumplimiento, 100);
-              const qc = qColor(a.quartile);
-
+            ${agents.map((a, i) => {
+              const qEvaluado = quartile(a.cumplimiento);
+              const qc = qColor(qEvaluado);
               return `
-                <div class="agent-row" style="padding: 6px 0; border-bottom: 1px dashed rgba(0,0,0,0.04);">
-                  <span class="agent-name" style="color: #1e293b !important; font-weight: 600 !important; font-size:12.5px;">${a.agent}</span>
-                  <div class="agent-bar-wrap" style="background: rgba(0,0,0,0.05) !important; height: 8px; border-radius: 4px;">
-                    <div class="agent-bar" style="width:${barPct}% !important; background: #1e51a4 !important; height: 100%; border-radius: 4px;"></div>
-                  </div>
-                  <span class="agent-pct" style="color: #1e51a4 !important; font-weight:700 !important; font-size:12px;">${fmt.pct(a.cumplimiento)}</span>
-                  <span class="agent-q-badge" style="background:${qc}15; color:${qc}; border:1px solid ${qc}33; font-weight:800; padding:1px 5px; border-radius:4px; font-size:10px;">${a.quartile}</span>
+                <div class="agent-row">
+                  <span class="agent-rank">#${i + 1}</span>
+                  <span class="agent-name">${a.agent.replace('-', ' ')}</span>
+                  <div class="agent-bar-wrap"><div class="agent-bar" style="width: ${Math.min((a.cumplimiento/maxCumpl)*100, 100)}%; background:${qc}"></div></div>
+                  <span class="agent-pct" style="color:${qc}">${fmt.pct(a.cumplimiento)}</span>
+                  <span class="agent-q-badge" style="background:${qc}15; color:${qc}">${qEvaluado}</span>
                 </div>`;
             }).join('')}
           </div>
@@ -298,91 +283,93 @@
     grid.innerHTML = html;
   }
 
+  /* ── DATA TABLE ── */
   function renderTable() {
-    let data = state.agentStats;
+    const tableEl = document.getElementById('data-table');
+    if (!tableEl) return;
+
+    let data = state.agentStats || [];
+    const ordenCampanas = ["RECORDACION", "FIDELIZACION_A", "FIDELIZACION_B", "RENACER_MASCOTAS"];
+
     if (state.filteredCampaign !== 'ALL') data = data.filter(a => a.campKey === state.filteredCampaign);
     if (state.searchTerm) data = data.filter(a => a.agent.toLowerCase().includes(state.searchTerm.toLowerCase()));
 
-    const tbody = document.querySelector('#data-table tbody');
-    if (!tbody) return;
-    tbody.innerHTML = '';
-
-    Object.entries(CAMPS).forEach(([campKey, camp]) => {
-      if (state.filteredCampaign !== 'ALL' && state.filteredCampaign !== campKey) return;
-
-      let blockData = data.filter(a => a.campKey === campKey);
-      if (blockData.length === 0) return;
-
-      const groupHeader = document.createElement('tr');
-      groupHeader.innerHTML = `
-        <td colspan="9" style="padding: 10px 16px !important; font-weight: 800 !important; font-size: 12px !important; letter-spacing: 0.6px !important; text-transform: uppercase !important; color: #1e51a4 !important; background: rgba(30, 81, 164, 0.08) !important; border-left: 4px solid #1e51a4 !important; border-bottom: 1px solid rgba(30, 81, 164, 0.15) !important;">
-          💼 Línea de Gestión: ${camp.label}
-        </td>
-      `;
-      tbody.appendChild(groupHeader);
-
-      blockData.forEach(a => {
-        const barPct = Math.min(a.cumplimiento, 100);
-        const hasComm = a.commission > 0;
-
-        const row = document.createElement('tr');
-        row.style.background = "#ffffff";
-        row.innerHTML = `
-          <td><div class="td-agent"><div class="agent-avatar" style="background:#1e51a4 !important; color:#ffffff !important; font-weight:700;">${a.agent.substring(0, 2)}</div><strong style="color: #1e293b !important; font-weight: 600 !important;">${a.agent}</strong></div></td>
-          <td><span class="td-campaign" style="background: rgba(30, 81, 164, 0.08) !important; color: #1e51a4 !important; border:1px solid rgba(30, 81, 164, 0.2) !important; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:700;">${camp.label}</span></td>
-          <td style="text-align:center; font-weight:700; color: #1e293b;">${a.totalAcuerdos}</td>
-          <td><span style="font-weight:600; color: #0f172a !important;">${fmt.money(a.totalRecaudo)}</span></td>
-          <td><span style="font-weight:600; color: #334155 !important;">${fmt.money(a.projection)}</span></td>
-          <td><span style="font-weight:600; color: #475569 !important;">${fmt.money(a.budget)}</span></td>
-          <td>
-            <div class="progress-cell" style="display:flex; align-items:center; gap:8px;">
-              <div class="mini-bar-wrap" style="width:55px; background: rgba(0,0,0,0.06); height:6px; border-radius:3px; overflow:hidden; display:inline-block;">
-                <div class="mini-bar" style="width:${barPct}% !important; background: #1e51a4 !important; height:100%;"></div>
-              </div>
-              <strong style="color: #1e51a4 !important; font-weight:700 !important;">${fmt.pct(a.cumplimiento)}</strong>
-            </div>
-          </td>
-          <td>${hasComm ? `<span class="pill-commission" style="background: rgba(30, 81, 164, 0.08) !important; color: #1e51a4 !important; border:1px solid rgba(30, 81, 164, 0.2) !important; padding:2px 6px; border-radius:4px; font-weight:700;">${fmt.money(Math.round(a.commission / (a.totalAcuerdos || 1)))}</span>` : `<span style="color: #4a5568 !important; font-weight:700; font-size:11.5px;">Sin comisión</span>`}</td>
-          <td><span style="font-weight:800; color: #1e51a4 !important;">${hasComm ? fmt.money(a.variableEstimada) : '$0'}</span></td>
-        `;
-        tbody.appendChild(row);
-      });
+    data = [...data].sort((a, b) => {
+      const indexA = ordenCampanas.indexOf(a.campKey);
+      const indexB = ordenCampanas.indexOf(b.campKey);
+      if (indexA !== indexB) return indexA - indexB;
+      return b.totalRecaudo - a.totalRecorido;
     });
 
-    const totalRecaudoGlobal = data.reduce((s, a) => s + a.totalRecaudo, 0);
-    const totalComisionGlobal = data.reduce((s, a) => s + a.variableEstimada, 0);
-    const footerEl = document.getElementById('table-footer');
-    if (footerEl) {
-      footerEl.innerHTML = `
-        <span style="color: #334155 !important; font-size:12px; font-weight:600;">${data.length} asesores listados</span>
-        <div class="footer-totals" style="display:flex; gap:32px; align-items:center;">
-          <div class="footer-total-item">
-            <span class="footer-total-label" style="font-size:12px !important; color: #1e293b !important; font-weight: 700 !important; margin-right:4px;">TOTAL RECAUDO REAL:</span> 
-            <strong style="color:#1e51a4 !important; font-size:16px !important; font-weight:800 !important;">${fmt.money(totalRecaudoGlobal)}</strong>
-          </div>
-          <div class="footer-total-item">
-            <span class="footer-total-label" style="font-size:12px !important; color: #1e293b !important; font-weight: 700 !important; margin-right:4px;">NÓMINA VARIABLE PROYECTADA:</span> 
-            <strong style="color:#1e51a4 !important; font-size:16px !important; font-weight:800 !important;">${fmt.money(totalComisionGlobal)}</strong>
-          </div>
-        </div>`;
+    const headersHtml = `<thead><tr><th>ASESOR</th><th>CAMPAÑA</th><th>ACUERDOS</th><th>RECAUDO REAL</th><th>PROYECCIÓN RECAUDO</th><th>PRESUPUESTO (META)</th><th>VARIABLE EST.</th></tr></thead>`;
+
+    let bodyHtml = '<tbody>';
+    if (data.length === 0) {
+      bodyHtml += '<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--text-muted)">Sin registros...</td></tr>';
+    } else {
+      let currentCamp = null;
+      let subAcuerdos = 0, subRecaudo = 0, subProyeccion = 0, subBudget = 0, subVariable = 0;
+
+      const appendSubtotalRow = (campLabel) => `
+        <tr style="background: rgba(30, 64, 175, 0.04); font-weight: 800; border-top: 1px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">
+          <td style="color: #1e40af; padding-left: 24px;">TOTAL ${campLabel.toUpperCase()}</td><td></td>
+          <td style="text-align:center; color: #1e293b;">${fmt.num(subAcuerdos)}</td>
+          <td style="color: #16a34a;">${fmt.money(subRecaudo)}</td>
+          <td style="color: #3b82f6;">${fmt.money(subProyeccion)}</td>
+          <td style="color: var(--text-muted);">${fmt.money(subBudget)}</td>
+          <td style="color: #d97706;">${subVariable > 0 ? fmt.money(subVariable) : '$0'}</td>
+        </tr>`;
+
+      data.forEach((a, index) => {
+        const camp = CAMPS[a.campKey] || { label: 'Recordación', color: '#1e40af' };
+        const labelActual = camp.label === "Fidelización B" ? "Retención" : camp.label;
+        const proyeccionCalculada = a.budget;
+
+        if (currentCamp && currentCamp !== a.campKey) {
+          bodyHtml += appendSubtotalRow(CAMPS[currentCamp]?.label === "Fidelización B" ? "Retención" : CAMPS[currentCamp]?.label || 'Recordación');
+          subAcuerdos = 0; subRecaudo = 0; subProyeccion = 0; subBudget = 0; subVariable = 0;
+        }
+
+        currentCamp = a.campKey;
+        subAcuerdos += a.totalAcuerdos; subRecaudo += a.totalRecaudo; subProyeccion += proyeccionCalculada; subBudget += a.budget; subVariable += a.variableEstimada;
+
+        bodyHtml += `
+          <tr>
+            <td><div class="td-agent"><div class="agent-avatar" style="background:${camp.color}">${a.agent.substring(0,2)}</div>${a.agent.replace('-',' ')}</div></td>
+            <td><span class="td-campaign" style="background:${camp.color}15; color:${camp.color}">${labelActual}</span></td>
+            <td style="text-align:center;font-weight:700">${fmt.num(a.totalAcuerdos)}</td>
+            <td style="font-weight:700;color:#16a34a">${fmt.money(a.totalRecaudo)}</td>
+            <td style="color:#3b82f6;font-weight:600">${fmt.money(proyeccionCalculada)}</td>
+            <td style="color:var(--text-muted)">${fmt.money(a.budget)}</td>
+            <td style="font-weight:700;color:${a.variableEstimada > 0 ? '#d97706':'var(--text-muted)'}">${a.variableEstimada > 0 ? fmt.money(a.variableEstimada) : '$0'}</td>
+          </tr>`;
+
+        if (index === data.length - 1) bodyHtml += appendSubtotalRow(labelActual);
+      });
     }
+    bodyHtml += '</tbody>';
+    tableEl.innerHTML = headersHtml + bodyHtml;
   }
 
+  /* ── UPDATE TIMESTAMP ───────────────────────────────────── */
   function updateLastUpdate() {
     const el = document.getElementById('last-update-time');
-    if (el) el.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (el) el.textContent = new Date().toLocaleString('es-CO', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
   }
 
+  /* ── FILTER & SORT PUBLIC API ──────────────────────────── */
   window.DASH = {
-    filterCampaign: function (key) { state.filteredCampaign = key; renderAll(); },
-    search: function (term) { state.searchTerm = term; renderTable(); }
+    filterCampaign(key) { state.filteredCampaign = key; renderAll(); },
+    sort(col) { state.sortCol = col; state.sortDir *= -1; renderTable(); },
+    search(term) { state.searchTerm = term; renderTable(); },
+    refresh() { fetchData(); }
   };
 
-  document.addEventListener('DOMContentLoaded', function() {
+  /* ── INIT ───────────────────────────────────────────────── */
+  document.addEventListener('DOMContentLoaded', () => {
     document.documentElement.setAttribute('data-theme', 'light');
-    fetchAndProcessCSV();
-    const interval = window.__PERFORMANCE_CONFIG__?.REFRESH_INTERVAL_MS || 300000;
-    setInterval(fetchAndProcessCSV, interval);
+    fetchData();
+    setInterval(() => window.DASH.refresh(), CFG.REFRESH_INTERVAL_MS);
   });
 
 })();

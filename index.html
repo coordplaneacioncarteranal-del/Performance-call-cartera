@@ -1,81 +1,239 @@
 <!DOCTYPE html>
-<html lang="es" style="overflow-y: auto !important; height: auto !important;">
+<html lang="es" data-theme="">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard de Performance · Call Center Analytics</title>
+  <meta name="description" content="Auditoría Comisional y Performance de Analistas de Cartera" />
+
+  <!-- FONTS -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- STYLES -->
   <link rel="stylesheet" href="styles.css" />
+
+  <!-- CHART.JS CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-
-  <style>
-    html, body {
-      overflow-y: auto !important;
-      overflow-x: hidden !important;
-      height: auto !important;
-      min-height: 100vh !important;
-    }
-    #app {
-      display: block !important;
-      opacity: 1 !important;
-      visibility: visible !important;
-      height: auto !important;
-    }
-    #splash { display: none !important; }
-  </style>
 </head>
-<body style="overflow-y: auto !important; height: auto !important;">
+<body>
 
+  <!-- ══════════════════════════════════════════════════════
+       SPLASH SCREEN
+  ══════════════════════════════════════════════════════ -->
+  <div id="splash">
+    <div class="splash-logo">CP</div>
+
+    <div class="splash-text">
+      <h1>Call Center Analytics</h1>
+      <p>Dashboard de Performance · Auditoría Comisional</p>
+    </div>
+
+    <div class="splash-loader">
+      <div class="loader-bar-wrap">
+        <div class="loader-bar"></div>
+      </div>
+      <div class="loader-status">Inicializando sistema...</div>
+    </div>
+
+    <div style="display:flex;gap:24px;margin-top:8px">
+      <div style="text-align:center;font-size:11px;color:#334155">
+        <div style="font-size:20px;margin-bottom:4px">📊</div>4 Campañas
+      </div>
+      <div style="text-align:center;font-size:11px;color:#334155">
+        <div style="font-size:20px;margin-bottom:4px">👥</div>19 Asesores
+      </div>
+      <div style="text-align:center;font-size:11px;color:#334155">
+        <div style="font-size:20px;margin-bottom:4px">⚡</div>Tiempo Real
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       MAIN APP
+  ══════════════════════════════════════════════════════ -->
   <div id="app">
-    <header style="background: #1e51a4 !important; border-bottom: 3px solid #153d7c !important;">
+
+    <!-- HEADER -->
+    <header>
       <div class="header-inner">
         <div class="header-brand">
-          <div class="brand-logo" style="background: #ffffff !important; color: #1e51a4 !important; font-weight: 900;">JR</div>
+          <div class="brand-logo">CP</div>
           <div class="brand-text">
-            <h1 style="color: #ffffff !important;">Call Center Analytics</h1>
-            <p style="color: rgba(255,255,255,0.8) !important;">Dashboard de Performance · Auditoría Comisional</p>
+            <h1>Call Center Analytics</h1>
+            <p>Dashboard de Performance · Auditoría Comisional</p>
           </div>
         </div>
+
         <div class="header-actions">
           <div class="last-update">
-            <div class="update-dot" style="background: #22c55e !important;"></div>
-            <span style="color: #ffffff !important;">Actualizado: <strong id="last-update-time" style="color: #ffffff !important;">—</strong></span>
+            <div class="update-dot"></div>
+            <span>Actualizado: <strong id="last-update-time">—</strong></span>
           </div>
-        
+
+          <button class="btn-icon" id="theme-btn" onclick="window.DASH.toggleTheme()" title="Cambiar tema">
+            <span id="theme-icon">☀️</span>
+          </button>
+
+          <button class="btn-refresh" id="refresh-btn" onclick="window.DASH.refresh()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M23 4v6h-6M1 20v-6h6"/>
+              <path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/>
+            </svg>
+            Actualizar
+          </button>
         </div>
       </div>
     </header>
 
-    <main id="app-content" style="padding: 24px;">
-      <section style="margin-bottom:32px">
-        <div class="kpi-grid" id="kpi-grid" style="display: grid; grid-template-columns: repeat(4, 1fr) !important; gap: 16px;"></div>
-      </section>
+    <!-- APP CONTENT -->
+    <main id="app-content">
 
-      <section style="margin-bottom:32px">
-        <div class="campaign-strip" id="campaign-strip"></div>
-      </section>
-
+      <!-- ── SECTION 01: KPIs GLOBALES ──────────────────── -->
       <section style="margin-bottom:32px">
         <div class="section-header">
-          <h2 class="section-title" style="color: #1e293b !important; font-weight: 800;">Distribución por Cuartiles de Cumplimiento</h2>
+          <span class="section-badge">01 · KPIs</span>
+          <h2 class="section-title">Resumen Ejecutivo de la Operación</h2>
+          <span class="section-sub">Cierre acumulado · Todas las campañas</span>
         </div>
-        <div class="quartile-grid" id="quartile-grid"></div>
+        <div class="kpi-grid" id="kpi-grid">
+          <!-- KPIs rendered by app.js -->
+          <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+          <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+          <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+          <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+          <div class="kpi-card"><div class="skeleton" style="height:80px"></div></div>
+        </div>
       </section>
 
+      <!-- ── CAMPAIGN FILTER STRIP ──────────────────────── -->
+      <section style="margin-bottom:32px">
+        <div class="section-header">
+          <span class="section-badge">Segmento</span>
+          <h2 class="section-title">Filtrar por Campaña</h2>
+        </div>
+        <div class="campaign-strip" id="campaign-strip">
+          <!-- Rendered by app.js -->
+        </div>
+      </section>
+
+      <!-- ── SECTION 02: CUARTILES ──────────────────────── -->
+      <section style="margin-bottom:32px">
+        <div class="section-header">
+          <span class="section-badge">02 · Cuartiles</span>
+          <h2 class="section-title">Distribución por Cuartiles de Cumplimiento</h2>
+          <span class="section-sub">
+            <span style="display:inline-flex;align-items:center;gap:6px;margin-right:12px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#10b981;display:inline-block"></span>
+              Q1 Top 25%
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:6px;margin-right:12px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;display:inline-block"></span>
+              Q2 25-50%
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:6px;margin-right:12px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span>
+              Q3 50-75%
+            </span>
+            <span style="display:inline-flex;align-items:center;gap:6px">
+              <span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span>
+              Q4 Fondo 25%
+            </span>
+          </span>
+        </div>
+        <div class="quartile-grid" id="quartile-grid">
+          <!-- Rendered by app.js -->
+        </div>
+      </section>
+
+      <!-- ── SECTION 03: GRÁFICAS ───────────────────────── -->
+      <section style="margin-bottom:32px">
+        <div class="section-header">
+          <span class="section-badge">03 · Análisis</span>
+          <h2 class="section-title">Análisis Estadístico de Dispersión</h2>
+          <span class="section-sub">Identificación de Outliers · Asesores Estrella vs. Bajo Rendimiento</span>
+        </div>
+
+        <div class="charts-row">
+
+          <!-- SCATTER PLOT -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">📡 Scatter: Cumplimiento vs. Recaudo</div>
+                <div class="chart-subtitle">Cada punto = 1 asesor · Líneas de referencia: 85% y 100%</div>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="scatter-chart"></canvas>
+            </div>
+            <div class="chart-legend" id="scatter-legend">
+              <!-- rendered by JS -->
+            </div>
+          </div>
+
+          <!-- BAR CHART -->
+          <div class="chart-card">
+            <div class="chart-header">
+              <div>
+                <div class="chart-title">📊 Recaudo Real vs. Meta por Campaña</div>
+                <div class="chart-subtitle">Comparativo presupuestal agregado</div>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <canvas id="bar-chart"></canvas>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Chart Legend -->
+        <div style="display:flex;flex-wrap:wrap;gap:12px;margin-top:-8px;margin-bottom:8px;padding:12px 20px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px">
+          <span style="font-size:11px;color:var(--text-muted);font-weight:600;margin-right:4px">CAMPAÑAS:</span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">
+            <span style="width:10px;height:10px;border-radius:50%;background:#6366f1;display:inline-block"></span>Recordación
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">
+            <span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block"></span>Fidelización A
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">
+            <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Fidelización B
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary)">
+            <span style="width:10px;height:10px;border-radius:50%;background:#ec4899;display:inline-block"></span>Renacer Mascotas
+          </span>
+          <span style="margin-left:auto;display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#f59e0b88">
+            <span style="width:20px;height:1px;background:#f59e0b;display:inline-block;border-top:2px dashed #f59e0b"></span> 85% Min.
+          </span>
+          <span style="display:inline-flex;align-items:center;gap:6px;font-size:11px;color:#10b98188">
+            <span style="width:20px;height:1px;background:#10b981;display:inline-block;border-top:2px dashed #10b981"></span> 100% Meta
+          </span>
+        </div>
+      </section>
+
+      <!-- ── SECTION 04: TABLA DETALLADA ────────────────── -->
       <section class="table-section">
         <div class="section-header">
-          <h2 class="section-title" style="color: #1e293b !important; font-weight: 800;">Detalle General de Asesores</h2>
+          <span class="section-badge">04 · Tabla</span>
+          <h2 class="section-title">Detalle General de Asesores</h2>
+          <span class="section-sub">Ordenamiento y filtrado en tiempo real</span>
         </div>
 
-        <div class="table-controls" style="margin-bottom: 16px; display: flex; gap: 12px; align-items: center;">
-          <div class="search-wrap" style="flex: 1;">
-            <input type="text" placeholder="Buscar asesor..." oninput="window.DASH.search(this.value)" id="search-input" />
+        <!-- TABLE CONTROLS -->
+        <div class="table-controls">
+          <div class="search-wrap">
+            <span class="search-icon">🔍</span>
+            <input
+              type="text"
+              placeholder="Buscar asesor..."
+              oninput="window.DASH.search(this.value)"
+              id="search-input"
+            />
           </div>
           <button class="filter-btn active" onclick="filterTableCampaign(this, 'ALL')">Todas</button>
           <button class="filter-btn" onclick="filterTableCampaign(this, 'RECORDACION')">Recordación</button>
-          <button class="filter-btn" onclick="filterTableCampaign(this, 'FIDELIZACION_A')">Fidelización A</button>
+          <button class="filter-btn" onclick="filterTableCampaign(this, 'FIDELIZACION')">Fidelización</button>
           <button class="filter-btn" onclick="filterTableCampaign(this, 'RETENCION')">Retención</button>
           <button class="filter-btn" onclick="filterTableCampaign(this, 'RENACER_MASCOTAS')">Mascotas</button>
         </div>
@@ -85,34 +243,96 @@
             <table id="data-table">
               <thead>
                 <tr>
-                  <th>Asesor</th>
-                  <th>Campaña</th>
-                  <th style="text-align:center;">Acuerdos</th>
-                  <th>Recaudo Real</th>
-                  <th>Proyección Recaudo</th>
-                  <th>Presupuesto (Meta)</th>
-                  <th>% Cumpl. Proy.</th>
-                  <th>Comisión/Acuerdo</th>
-                  <th>Variable Est.</th>
+                  <th>Asesor</th><th>Campaña</th><th>Acuerdos</th>
+                  <th>Recaudo</th><th>% Cumpl.</th><th>Comisión/Acuerdo</th><th>Variable Est.</th>
                 </tr>
               </thead>
-              <tbody></tbody>
+              <tbody>
+                <tr><td colspan="7" style="text-align:center;padding:40px;color:var(--text-muted)">
+                  <div class="skeleton" style="height:40px;margin:8px 0"></div>
+                  <div class="skeleton" style="height:40px;margin:8px 0"></div>
+                  <div class="skeleton" style="height:40px;margin:8px 0"></div>
+                </td></tr>
+              </tbody>
             </table>
           </div>
-          <div class="table-footer" id="table-footer" style="margin-top: 12px; padding: 16px; background: #f8fafc; border-radius: 8px;"></div>
+          <div class="table-footer" id="table-footer">
+            <span>Cargando datos...</span>
+          </div>
         </div>
       </section>
-    </main>
-  </div>
 
+      <!-- COMMISSION TABLE REFERENCE -->
+      <section style="margin-top:32px;margin-bottom:40px">
+                <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow-card)">
+          <div style="overflow-x:auto">
+            <table style="width:100%;border-collapse:collapse;font-size:13px">
+              <thead style="background:var(--bg-secondary)">
+                <tr>
+                  <th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)">Rango Cumplimiento</th>
+                  <th style="padding:12px 20px;text-align:center;font-size:11px;font-weight:700;color:#6366f1;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)">Recordación</th>
+                  <th style="padding:12px 20px;text-align:center;font-size:11px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)">Fidelización</th>
+                  <th style="padding:12px 20px;text-align:left;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border)">Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:12px 20px;color:var(--text-muted)">0% — 84.99%</td>
+                  <td style="padding:12px 20px;text-align:center;color:#ef4444;font-weight:700">$0</td>
+                  <td style="padding:12px 20px;text-align:center;color:#ef4444;font-weight:700">$0</td>
+                  <td style="padding:12px 20px"><span style="background:#ef444415;color:#ef4444;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid #ef444430">Sin Comisión</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:12px 20px">85.00% — 89.99%</td>
+                  <td style="padding:12px 20px;text-align:center;color:#f59e0b;font-weight:700">$150</td>
+                  <td style="padding:12px 20px;text-align:center;color:#f59e0b;font-weight:700">$200</td>
+                  <td style="padding:12px 20px"><span style="background:#f59e0b15;color:#f59e0b;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid #f59e0b30">Nivel Básico</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:12px 20px">90.00% — 99.99%</td>
+                  <td style="padding:12px 20px;text-align:center;color:#3b82f6;font-weight:700">$200</td>
+                  <td style="padding:12px 20px;text-align:center;color:#3b82f6;font-weight:700">$300</td>
+                  <td style="padding:12px 20px"><span style="background:#3b82f615;color:#3b82f6;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid #3b82f630">Nivel Medio</span></td>
+                </tr>
+                <tr style="border-bottom:1px solid var(--border)">
+                  <td style="padding:12px 20px">100.00% — 100.99%</td>
+                  <td style="padding:12px 20px;text-align:center;color:#10b981;font-weight:700">$300</td>
+                  <td style="padding:12px 20px;text-align:center;color:#10b981;font-weight:700">$500</td>
+                  <td style="padding:12px 20px"><span style="background:#10b98115;color:#10b981;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid #10b98130">En Meta</span></td>
+                </tr>
+                <tr>
+                  <td style="padding:12px 20px">101.00% en adelante</td>
+                  <td style="padding:12px 20px;text-align:center;color:#6366f1;font-weight:700">$310</td>
+                  <td style="padding:12px 20px;text-align:center;color:#6366f1;font-weight:700">$520</td>
+                  <td style="padding:12px 20px"><span style="background:#6366f115;color:#6366f1;padding:3px 10px;border-radius:6px;font-size:11px;font-weight:700;border:1px solid #6366f130">⭐ Sobre Meta</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer style="border-top:1px solid var(--border);padding:16px 24px;text-align:center;font-size:11px;color:var(--text-muted);background:var(--bg-secondary)">
+      Call Center Analytics · Dashboard de Performance · Actualización automática cada 5 min ·
+      <span style="color:var(--accent-indigo)">config.js</span> para personalizar parámetros
+    </footer>
+
+  </div><!-- /#app -->
+
+  <!-- SCRIPTS -->
+  <script src="config.js"></script>
   <script>
+    // Inline filter helper for table campaign buttons
     function filterTableCampaign(btn, key) {
       document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       window.DASH.filterCampaign(key);
     }
   </script>
-<script src="config.js?v=9.2"></script>
-<script src="app.js?v=9.1"></script>
+  <script src="app.js"></script>
+
 </body>
 </html>
