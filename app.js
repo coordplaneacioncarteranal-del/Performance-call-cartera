@@ -2,7 +2,7 @@
  * ============================================================
  * PERFORMANCE DASHBOARD — APP ENGINE
  * Vanilla JS · IIFE · Zero Dependencies
- * Versión: 5.5 (Limpieza Total de Rojos · Identidad Corporativa JR)
+ * Versión: 9.0 (Blindaje Absoluto Contra Errores de Formato)
  * ============================================================
  */
 
@@ -11,7 +11,7 @@
 
   /* ── CONFIGURACIÓN DE CAMPANAS CON LA PALETA CORPORATIVA ── */
   const CAMPS = {
-    RECORDACION: { label: 'Recordación', type: 'recordacion', color: '#1e51a4', colorLight: '#467ec6', agents: ["DIANA MILLON", "LUZ ARIAGU", "MARIA ALEVIL", "MARIANA MUNGON", "JENNIFER MARCAR", "JUAN GALCAR", "DANIELA MEJCOR", "KATHERIN CHATAP"] },
+    RECORDACION: { label: 'Recordación', type: 'recordacion', color: '#1e51a4', colorLight: '#467ec6', agents: ["DIANA MILLON", "LUZ ARIAGU", "MARIA ALEVIL", "MARIANA MUNGON", "JENNIFER MARCAR", "JUAN GALCAR", "DANIELA MEJCOR", "KATHERIN CHATAP", "SEBASTIAN CASARA"] },
     FIDELIZACION_A: { label: 'Fidelización A', type: 'fidelizacion', color: '#1e51a4', colorLight: '#467ec6', agents: ["MONICA GUZCRU", "CESAR JARCAR", "LEIDY BERMUDEZ", "ELSI MANHER", "LAURA LOPHEN", "CINDY ESPZUL"] },
     RETENCION: { label: 'Retención', type: 'retencion', color: '#1e51a4', colorLight: '#467ec6', agents: ["ERIKA VILLA", "JESSICA TORMAR", "DIANA MARBOR", "MARIA RINCAS"] },
     RENACER_MASCOTAS: { label: 'Renacer Mascotas', type: 'fidelizacion', color: '#1e51a4', colorLight: '#467ec6', agents: ["JUAN CASVAL"] }
@@ -25,32 +25,9 @@
     { desde: 1.01,  recordacion: 310000,  fidelizacion: 520000,  retencion: 680000 }
   ];
 
-  const DATA_EXCEL = [
-    { usuario: "DIANA MILLON", total_acuerdos: 72, cierre_recaudo: 4901050, proyeccion: 18713100, presupuesto_junio: 22500000 },
-    { usuario: "LUZ ARIAGU", total_acuerdos: 80, cierre_recaudo: 4477950, proyeccion: 15156138, presupuesto_junio: 22500000 },
-    { usuario: "MARIA ALEVIL", total_acuerdos: 74, cierre_recaudo: 4156250, proyeccion: 17040625, presupuesto_junio: 22500000 },
-    { usuario: "MARIANA MUNGON", total_acuerdos: 72, cierre_recaudo: 3707550, proyeccion: 15200955, presupuesto_junio: 22500000 },
-    { usuario: "JENNIFER MARCAR", total_acuerdos: 67, cierre_recaudo: 3543000, proyeccion: 11991692, presupuesto_junio: 22500000 },
-    { usuario: "JUAN GALCAR", total_acuerdos: 66, cierre_recaudo: 3456600, proyeccion: 11699262, presupuesto_junio: 22500000 },
-    { usuario: "DANIELA MEJCOR", total_acuerdos: 76, cierre_recaudo: 3373901, proyeccion: 11419357, presupuesto_junio: 22500000 },
-    { usuario: "KATHERIN CHATAP", total_acuerdos: 25, cierre_recaudo: 1256700, proyeccion: 6822086, presupuesto_junio: 19000000 },
-    
-    { usuario: "MONICA GUZCRU", total_acuerdos: 67, cierre_recaudo: 4683700, proyeccion: 16783258, presupuesto_junio: 15450000 },
-    { usuario: "CESAR JARCAR", total_acuerdos: 62, cierre_recaudo: 4229250, proyeccion: 15154813, presupuesto_junio: 15450000 },
-    { usuario: "LEIDY BERMUDEZ", total_acuerdos: 61, cierre_recaudo: 4237500, proyeccion: 14342308, presupuesto_junio: 15450000 },
-    { usuario: "ELSI MANHER", total_acuerdos: 64, cierre_recaudo: 4136900, proyeccion: 14001815, presupuesto_junio: 15450000 },
-    { usuario: "LAURA LOPHEN", total_acuerdos: 46, cierre_recaudo: 2805100, proyeccion: 9494185, presupuesto_junio: 15450000 },
-    { usuario: "CINDY ESPZUL", total_acuerdos: 48, cierre_recaudo: 2708950, proyeccion: 9168754, presupuesto_junio: 15450000 },
-    
-    { usuario: "ERIKA VILLA", total_acuerdos: 32, cierre_recaudo: 1980750, proyeccion: 6704077, presupuesto_junio: 10200000 },
-    { usuario: "JESSICA TORMAR", total_acuerdos: 35, cierre_recaudo: 1971916, proyeccion: 6674177, presupuesto_junio: 10200000 },
-    { usuario: "DIANA MARBOR", total_acuerdos: 41, cierre_recaudo: 1910000, proyeccion: 6464615, presupuesto_junio: 10200000 },
-    { usuario: "MARIA RINCAS", total_acuerdos: 20, cierre_recaudo: 1664900, proyeccion: 5635046, presupuesto_junio: 10200000 },
-    
-    { usuario: "JUAN CASVAL", total_acuerdos: 49, cierre_recaudo: 3630650, proyeccion: 12288354, presupuesto_junio: 16000000 }
-  ];
+  /* ── STATE & DATA STORAGE ──────────────────────────────── */
+  let DATA_EXCEL = [];  
 
-  /* ── STATE ─────────────────────────────────────────────── */
   const state = {
     agentStats: [],
     filteredCampaign: 'ALL',
@@ -97,12 +74,86 @@
     return { Q1: '#1e51a4', Q2: '#2b6cb0', Q3: '#4a5568', Q4: '#718096' }[q] || '#94a3b8';
   }
 
+  /* ── CONEXIÓN ULTRA-BLINDADA CON EL ARCHIVO EXPORTADO ── */
+  async function fetchAndProcessCSV() {
+    try {
+      const config = window.__PERFORMANCE_CONFIG__;
+      if (!config || !config.CSV_URL) {
+        console.error("No se encontró la configuración de CSV_URL en config.js");
+        return;
+      }
+
+      // Evitamos la caché de Live Server forzosamente
+      const response = await fetch(`${config.CSV_URL}&nocache=${new Date().getTime()}`);
+      const csvText = await response.text();
+      
+      const lines = csvText.split(/\r?\n/);
+      if (lines.length < 2) return;
+
+      // Rompemos las líneas detectando automáticamente si usa comas o puntos y comas
+      const separador = lines[0].includes(';') ? ';' : ',';
+      const newAgentData = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const currentLine = lines[i].trim();
+        if (!currentLine) continue;
+
+        const columns = currentLine.split(separador).map(c => c.trim().replace(/"/g, ''));
+        const usuario = columns[0];
+
+        // VALIDACIÓN BLINDADA: Filtramos estrictamente filas basura o informativas de abajo
+        if (!usuario || usuario.toUpperCase().includes("TOTAL") || usuario.toUpperCase().includes("ASESOR") || usuario.toUpperCase().includes("CALL CENTER") || usuario.startsWith("%")) {
+          continue;
+        }
+
+        // Si la primera columna no tiene la estructura de un nombre de asesor válido, la saltamos
+        const usuarioLimpio = usuario.replace(/-/g, ' ').toUpperCase().trim();
+        if (usuarioLimpio.length < 3) continue;
+
+        // Limpiador numérico súper agresivo para evitar fallos por formatos regionales europeos o americanos
+        const parseNum = (index) => {
+          if (index === -1 || index >= columns.length || !columns[index]) return 0;
+          let val = columns[index].replace(/[^0-9,-]/g, ''); // Deja solo números, guiones y comas
+          if (val.includes(',')) {
+            // Si el número tiene puntos de miles y coma decimal, o viceversa, lo adaptamos
+            if (val.match(/\d+,\d+/)) val = val.replace(',', '.');
+          }
+          return parseFloat(val) || 0;
+        };
+
+        // Extraemos los datos basándonos puramente en el orden visual de tu captura de pantalla
+        const acuerdosJunio = parseNum(3); // Columna D
+        const recaudoJunio  = parseNum(4); // Columna E
+        const cierreRecaudo = parseNum(6); // Columna G
+        const presupuesto   = parseNum(7); // Columna H
+
+        newAgentData.push({
+          usuario: usuarioLimpio,
+          total_acuerdos: acuerdosJunio,
+          cierre_recaudo: cierreRecaudo,
+          proyeccion: recaudoJunio,
+          presupuesto_junio: presupuesto
+        });
+      }
+
+      if (newAgentData.length > 0) {
+        DATA_EXCEL = newAgentData;
+      }
+
+    } catch (error) {
+      console.error("Error crítico en la sincronización con Google Sheets:", error);
+    } finally {
+      processData();
+    }
+  }
+
   function processData() {
     state.agentStats = DATA_EXCEL.map(a => {
       const campKey = getCampaignForAgent(a.usuario);
       const recaudo = a.cierre_recaudo;
       const acuerdos = a.total_acuerdos;
-      const cumplimientoProyectado = (a.proyeccion / a.presupuesto_junio) * 100;
+      
+      const cumplimientoProyectado = a.presupuesto_junio > 0 ? (recaudo / a.presupuesto_junio) * 100 : 0;
       const commission = getCommission(cumplimientoProyectado, campKey);
 
       return {
@@ -114,7 +165,7 @@
         projection: a.proyeccion,
         cumplimiento: cumplimientoProyectado,
         commission,
-        variableEstimada: commission > 0 ? commission : 0,
+        variableEstimada: commission > 0 ? commission : 0, 
         quartile: calculateCorrectQuartile(cumplimientoProyectado)
       };
     });
@@ -130,13 +181,13 @@
     updateLastUpdate();
   }
 
-  /* ── REESTRUCTURADO: TARJETA DE CUMPLIMIENTO CON TODAS LAS MÉTRICAS GLOBALES SOLICITADAS ── */
+  /* ── RENDERIZADOS DE INTERFAZ ──────────────────────────── */
   function renderKPIs() {
     const stats = state.agentStats;
     const totalRecaudo = stats.reduce((s, a) => s + a.totalRecaudo, 0);
     const totalBudget = stats.reduce((s, a) => s + a.budget, 0);
     const totalProjection = stats.reduce((s, a) => s + a.projection, 0);
-    const globalCumpl = totalBudget > 0 ? (totalProjection / totalBudget) * 100 : 0;
+    const globalCumpl = totalBudget > 0 ? (totalRecaudo / totalBudget) * 100 : 0;
     const totalComisiones = stats.reduce((s, a) => s + a.variableEstimada, 0);
     const totalAcuerdos = stats.reduce((s, a) => s + a.totalAcuerdos, 0);
 
@@ -150,7 +201,6 @@
         <div class="kpi-sub" style="color: #718096 !important;">Meta Global: ${fmt.money(totalBudget)}</div>
       </div>
       
-      <!-- NUEVA TARJETA UNIFICADA CON TODAS LAS SOLICITUDES DE MÉTRICAS -->
       <div class="kpi-card" style="border-left: 5px solid #1e51a4 !important; background: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
         <div class="kpi-label" style="color: #4a5568 !important; font-weight:700;">Cumplimiento Medio Proyectado</div>
         <div class="kpi-value" style="color:#1e51a4 !important; font-weight:900;">${globalCumpl.toFixed(1)}%</div>
@@ -166,24 +216,15 @@
         <div class="kpi-value" style="color:#1e51a4 !important; font-weight:900;">${fmt.num(totalAcuerdos)}</div>
         <div class="kpi-sub" style="color: #718096 !important;">Operación Corporativa JR</div>
       </div>
+
       <div class="kpi-card" style="border-left: 5px solid #1e51a4 !important; background: #ffffff !important; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
         <div class="kpi-label" style="color: #4a5568 !important; font-weight:700;">Nómina Variable Estimada Total</div>
         <div class="kpi-value" style="color:#1e51a4 !important; font-weight:900;">${fmt.money(totalComisiones)}</div>
         <div class="kpi-sub" style="color: #718096 !important;">Corte proyectado &lt; 85% activo</div>
       </div>
     `;
-
-    // CORRECCIÓN DE LA ETIQUETA "ACTUALIZADO": Estilo limpio, blanco y ejecutivo sin fondos pesados
-    const lastUpdateLabel = document.querySelector('.last-update');
-    if (lastUpdateLabel) {
-      lastUpdateLabel.style.setProperty('background', 'rgba(255, 255, 255, 0.15)', 'important');
-      lastUpdateLabel.style.setProperty('border', '1px solid rgba(255, 255, 255, 0.3)', 'important');
-      lastUpdateLabel.style.setProperty('padding', '4px 12px', 'important');
-      lastUpdateLabel.style.setProperty('border-radius', '20px', 'important');
-    }
   }
 
-  /* ── CAMPAIGN STRIP ─────────────────────────────────────── */
   function renderCampaignStrip() {
     const strip = document.getElementById('campaign-strip');
     if (!strip) return;
@@ -213,7 +254,6 @@
     strip.innerHTML = html;
   }
 
-  /* ── QUARTILE MODULE (Sin Rojos en Textos) ────────────────── */
   function renderQuartiles() {
     const grid = document.getElementById('quartile-grid');
     if (!grid) return;
@@ -224,8 +264,8 @@
       if (!agents.length) return;
 
       const campBudget = agents.reduce((s, a) => s + a.budget, 0);
-      const campProjection = agents.reduce((s, a) => s + a.projection, 0);
-      const campCumplimiento = campBudget > 0 ? (campProjection / campBudget) * 100 : 0;
+      const campRecaudo = agents.reduce((s, a) => s + a.totalRecaudo, 0);
+      const campCumplimiento = campBudget > 0 ? (campRecaudo / campBudget) * 100 : 0;
 
       html += `
         <div class="quartile-card" style="border-top: 4px solid #1e51a4 !important; background: #ffffff !important;">
@@ -260,7 +300,6 @@
     grid.innerHTML = html;
   }
 
-  /* ── DATA TABLE (Limpia de tonos rojos en textos y nombres) ── */
   function renderTable() {
     let data = state.agentStats;
     if (state.filteredCampaign !== 'ALL') data = data.filter(a => a.campKey === state.filteredCampaign);
@@ -269,13 +308,6 @@
     const tbody = document.querySelector('#data-table tbody');
     if (!tbody) return;
     tbody.innerHTML = '';
-
-    const tableHeaders = document.querySelectorAll('#data-table th');
-    tableHeaders.forEach(th => {
-      th.style.setProperty('color', '#1e293b', 'important');
-      th.style.setProperty('font-weight', '700', 'important');
-      th.style.setProperty('background', '#f1f5f9', 'important');
-    });
 
     Object.entries(CAMPS).forEach(([campKey, camp]) => {
       if (state.filteredCampaign !== 'ALL' && state.filteredCampaign !== campKey) return;
@@ -293,7 +325,6 @@
 
       blockData.forEach(a => {
         const barPct = Math.min(a.cumplimiento, 100);
-        const qc = qColor(a.quartile);
         const hasComm = a.commission > 0;
 
         const row = document.createElement('tr');
@@ -313,14 +344,13 @@
               <strong style="color: #1e51a4 !important; font-weight:700 !important;">${fmt.pct(a.cumplimiento)}</strong>
             </div>
           </td>
-          <td>${hasComm ? `<span class="pill-commission" style="background: rgba(30, 81, 164, 0.08) !important; color: #1e51a4 !important; border:1px solid rgba(30, 81, 164, 0.2) !important; padding:2px 6px; border-radius:4px; font-weight:700;">${fmt.money(Math.round(a.commission / a.totalAcuerdos))}</span>` : `<span style="color: #4a5568 !important; font-weight:700; font-size:11.5px;">Sin comisión</span>`}</td>
+          <td>${hasComm ? `<span class="pill-commission" style="background: rgba(30, 81, 164, 0.08) !important; color: #1e51a4 !important; border:1px solid rgba(30, 81, 164, 0.2) !important; padding:2px 6px; border-radius:4px; font-weight:700;">${fmt.money(Math.round(a.commission / (a.totalAcuerdos || 1)))}</span>` : `<span style="color: #4a5568 !important; font-weight:700; font-size:11.5px;">Sin comisión</span>`}</td>
           <td><span style="font-weight:800; color: #1e51a4 !important;">${hasComm ? fmt.money(a.variableEstimada) : '$0'}</span></td>
         `;
         tbody.appendChild(row);
       });
     });
 
-    // Totales del Footer
     const totalRecaudoGlobal = data.reduce((s, a) => s + a.totalRecaudo, 0);
     const totalComisionGlobal = data.reduce((s, a) => s + a.variableEstimada, 0);
     const footerEl = document.getElementById('table-footer');
@@ -347,18 +377,14 @@
 
   window.DASH = {
     filterCampaign: function (key) { state.filteredCampaign = key; renderAll(); },
-    search: function (term) { state.searchTerm = term; renderTable(); },
-    toggleTheme: function () {
-      document.documentElement.setAttribute('data-theme', 'light');
-      state.theme = 'light';
-      localStorage.setItem('dash-theme', 'light');
-    }
+    search: function (term) { state.searchTerm = term; renderTable(); }
   };
 
   document.addEventListener('DOMContentLoaded', function() {
     document.documentElement.setAttribute('data-theme', 'light');
-    localStorage.setItem('dash-theme', 'light');
-    processData();
+    fetchAndProcessCSV();
+    const interval = window.__PERFORMANCE_CONFIG__?.REFRESH_INTERVAL_MS || 300000;
+    setInterval(fetchAndProcessCSV, interval);
   });
 
 })();
