@@ -75,6 +75,7 @@
   }
 
   /* ── CONEXIÓN ULTRA-BLINDADA CON EL ARCHIVO EXPORTADO ── */
+  /* ── REEMPLAZAR ÚNICAMENTE ESTA FUNCIÓN EN TU APP.JS LOCAL ── */
   async function fetchAndProcessCSV() {
     try {
       const config = window.__PERFORMANCE_CONFIG__;
@@ -83,14 +84,16 @@
         return;
       }
 
-      // Evitamos la caché de Live Server forzosamente
-      const response = await fetch(`${config.CSV_URL}&nocache=${new Date().getTime()}`);
+      // Generamos un conector plano infalible para saltar la caché
+      const marcaTiempo = Date.now();
+      const urlLimpia = config.CSV_URL + "&cb=" + marcaTiempo;
+
+      const response = await fetch(urlLimpia);
       const csvText = await response.text();
       
       const lines = csvText.split(/\r?\n/);
       if (lines.length < 2) return;
 
-      // Rompemos las líneas detectando automáticamente si usa comas o puntos y comas
       const separador = lines[0].includes(';') ? ';' : ',';
       const newAgentData = [];
 
@@ -101,27 +104,23 @@
         const columns = currentLine.split(separador).map(c => c.trim().replace(/"/g, ''));
         const usuario = columns[0];
 
-        // VALIDACIÓN BLINDADA: Filtramos estrictamente filas basura o informativas de abajo
         if (!usuario || usuario.toUpperCase().includes("TOTAL") || usuario.toUpperCase().includes("ASESOR") || usuario.toUpperCase().includes("CALL CENTER") || usuario.startsWith("%")) {
           continue;
         }
 
-        // Si la primera columna no tiene la estructura de un nombre de asesor válido, la saltamos
         const usuarioLimpio = usuario.replace(/-/g, ' ').toUpperCase().trim();
         if (usuarioLimpio.length < 3) continue;
 
-        // Limpiador numérico súper agresivo para evitar fallos por formatos regionales europeos o americanos
         const parseNum = (index) => {
           if (index === -1 || index >= columns.length || !columns[index]) return 0;
-          let val = columns[index].replace(/[^0-9,-]/g, ''); // Deja solo números, guiones y comas
+          let val = columns[index].replace(/[^0-9,-]/g, '');
           if (val.includes(',')) {
-            // Si el número tiene puntos de miles y coma decimal, o viceversa, lo adaptamos
             if (val.match(/\d+,\d+/)) val = val.replace(',', '.');
           }
           return parseFloat(val) || 0;
         };
 
-        // Extraemos los datos basándonos puramente en el orden visual de tu captura de pantalla
+        // Mapeo por índices físicos idénticos a tu Sheets real
         const acuerdosJunio = parseNum(3); // Columna D
         const recaudoJunio  = parseNum(4); // Columna E
         const cierreRecaudo = parseNum(6); // Columna G
@@ -141,12 +140,11 @@
       }
 
     } catch (error) {
-      console.error("Error crítico en la sincronización con Google Sheets:", error);
+      console.error("Error en fetch:", error);
     } finally {
       processData();
     }
   }
-
   function processData() {
     state.agentStats = DATA_EXCEL.map(a => {
       const campKey = getCampaignForAgent(a.usuario);

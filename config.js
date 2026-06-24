@@ -17,6 +17,7 @@ window.__PERFORMANCE_CONFIG__ = {
 
   /* ── FUENTE DE DATOS (ENLACE INTEGRADO SIN RESTRICCIONES) ── */
   /* ── FUENTE DE DATOS (ENLACE INTEGRADO SIN RESTRICCIONES) ── */
+  /* ── FUENTE DE DATOS (ENLACE INTEGRADO COMPLETO) ── */
   CSV_URL: "https://docs.google.com/spreadsheets/d/1vQmZFJ_nA1hFCcM2XAkZ-mKM52hMojZr7jR3WLolD-dMfbBD0PzfjYsnn62jAUxCdWyQP0h63dZL33t/export?format=csv",
   REFRESH_INTERVAL_MS: 300000, // 5 minutos
 
